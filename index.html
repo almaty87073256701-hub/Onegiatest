@@ -155,8 +155,21 @@
     }
     .toast.ok{border-color: rgba(46,229,157,.35)}
     .toast.err{border-color: rgba(255,107,107,.35)}
+
+    /* WhatsApp button */
+    .btn-whatsapp{
+      display:inline-block;
+      padding:12px 18px;
+      border-radius:999px;
+      font-weight:700;
+      color:#111;
+      text-decoration:none;
+      background:#25D366;
+    }
+    .btn-whatsapp:hover{ filter: brightness(0.95); }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <header>
@@ -193,8 +206,8 @@
           <div class="options" id="qOptions"></div>
 
           <div class="btnrow">
-            <button class="secondary" id="btnBack">Назад</button>
-            <button id="btnNext" disabled>Следующий вопрос</button>
+            <button class="secondary" id="btnBack" type="button">Назад</button>
+            <button id="btnNext" type="button" disabled>Следующий вопрос</button>
           </div>
         </div>
 
@@ -222,18 +235,12 @@
       <div class="resultGrid" id="pendantGrid"></div>
 
       <div class="btnrow" style="margin-top:18px">
-        <a
-  href="https://wa.me/77761630783?text=Здравствуйте!%20Я%20прошла%20тест%20Onegia%20и%20хочу%20заказать%20кулон%20по%20моей%20рекомендации."
-  target="_blank"
-  class="btn-whatsapp"
->
-  Заказать аркан
-</a>
-        <button class="secondary" id="btnRestart">Пройти ещё раз</button>
+        <a href="#" id="btnWhatsapp" class="btn-whatsapp">Заказать аркан</a>
+        <button class="secondary" id="btnRestart" type="button">Пройти ещё раз</button>
       </div>
     </section>
 
-    <!-- SCREEN: ORDER -->
+    <!-- SCREEN: ORDER (оставил, если тебе нужна форма) -->
     <section id="screenOrder" class="card" style="display:none">
       <h1>Заказать аркан</h1>
       <p>Оставьте контакты — и мы свяжемся с вами для уточнения деталей.</p>
@@ -243,7 +250,6 @@
         <input name="phone" id="phone" placeholder="Номер телефона" required />
         <select name="pendant" id="pendant" required></select>
 
-        <!-- OPTIONAL: добавь скрытое поле с результатом -->
         <input type="hidden" name="quiz_result" id="quiz_result" />
 
         <small>
@@ -267,11 +273,12 @@
 
 <script>
   // ====== НАСТРОЙКА ОТПРАВКИ ФОРМЫ ======
-  // Вставь сюда свой endpoint Formspree вида: https://formspree.io/f/xxxxxxx
-  // Создаётся бесплатно, но есть лимит на free tier. (например, от 50/мес) :contentReference[oaicite:3]{index=3}
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/XXXXXXXX"; // <-- ЗАМЕНИ
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/XXXXXXXX"; // <-- ЗАМЕНИ или оставь
 
-  // ====== ДАННЫЕ (Арканы строго из ТЗ) ======
+  // ====== WhatsApp ======
+  const WHATSAPP_PHONE = "77761630783"; // <-- твой номер без +
+
+  // ====== ДАННЫЕ ======
   const ARCANA = {
     empress: {
       key: "empress",
@@ -311,8 +318,6 @@
     }
   };
 
-  // ====== ВОПРОСЫ (мягко, без прямых упоминаний) ======
-  // Каждый вариант ответа сразу привязан к одной энергии/аркану (6 типов).
   const QUESTIONS = [
     {
       title: "Как вы в целом ощущаете себя в последнее время?",
@@ -424,7 +429,8 @@
   const resultText   = document.getElementById("resultText");
   const pendantGrid  = document.getElementById("pendantGrid");
   const btnRestart   = document.getElementById("btnRestart");
-  const btnOrder     = document.getElementById("btnOrder");
+
+  const btnWhatsapp = document.getElementById("btnWhatsapp");
 
   const orderForm = document.getElementById("orderForm");
   const selectPendant = document.getElementById("pendant");
@@ -435,7 +441,7 @@
 
   // ====== state ======
   let idx = 0;
-  let answers = []; // stores arc key per question
+  let answers = [];
   let lastTop = null;
   let lastTopList = [];
 
@@ -459,7 +465,7 @@
   function renderQuestion(){
     const q = QUESTIONS[idx];
     qCounter.textContent = `Вопрос ${idx+1}/${QUESTIONS.length}`;
-    bar.style.width = `${Math.round(((idx) / QUESTIONS.length) * 100)}%`;
+    bar.style.width = `${Math.round((idx / QUESTIONS.length) * 100)}%`;
     qTitle.textContent = q.title;
 
     qOptions.innerHTML = "";
@@ -467,6 +473,7 @@
 
     q.options.forEach((opt, i) => {
       const id = `q${idx}_opt${i}`;
+
       const label = document.createElement("label");
       label.className = "opt";
       label.htmlFor = id;
@@ -491,12 +498,9 @@
       qOptions.appendChild(label);
     });
 
-    // кнопка на последнем шаге
-    if (idx === QUESTIONS.length - 1){
-      btnNext.textContent = "Получить рекомендацию";
-    } else {
-      btnNext.textContent = "Следующий вопрос";
-    }
+    btnNext.textContent = (idx === QUESTIONS.length - 1)
+      ? "Получить рекомендацию"
+      : "Следующий вопрос";
 
     btnBack.disabled = idx === 0;
   }
@@ -505,10 +509,8 @@
     const score = { empress:0, wheel:0, star:0, sun:0, ace:0, magician:0 };
     answers.forEach(a => { if(a) score[a]++; });
 
-    const sorted = Object.entries(score)
-      .sort((a,b) => b[1]-a[1]);
+    const sorted = Object.entries(score).sort((a,b) => b[1]-a[1]);
 
-    // берём топ-3, но если у 3-го 0 — не берём
     const topList = sorted
       .filter(([,v]) => v > 0)
       .slice(0,3)
@@ -519,7 +521,6 @@
   }
 
   function buildResultNarrative(top, second){
-    // 1–2 абзаца поддерживающе, без фатальности, как рекомендация
     const A = ARCANA[top].title;
 
     const mood = {
@@ -538,13 +539,12 @@
       sun: "И дополнительно может поддержать энергия, которая усиливает уверенность, харизму и «вкус к жизни».",
       ace: "И дополнительно может поддержать энергия, которая помогает материализовать идеи и выстроить стабильность.",
       magician: "И дополнительно может поддержать энергия, которая даёт волю, фокус и ясное «я могу»."
-    } : "";
+    } : null;
 
-    const secondText = second ? `\n\n${bridge[second]}` : "";
     return `
       <p><strong>Ведущая энергия периода для вас — ${A}.</strong></p>
       <p>${mood[top]}</p>
-      ${secondText ? `<p>${secondText.replaceAll("\n","")}</p>` : ""}
+      ${bridge ? `<p>${bridge[second]}</p>` : ""}
     `;
   }
 
@@ -564,13 +564,17 @@
 
   function renderResult(){
     const { top, topList } = scoreResults();
+
+    // текст арканов для WhatsApp
+    const arcanaNames = topList.map(key => ARCANA[key].title).join(", ");
+    window.recommendedArcanaText = arcanaNames;
+
     lastTop = top;
     lastTopList = topList;
 
     const second = topList[1] || null;
     resultText.innerHTML = buildResultNarrative(top, second);
 
-    // why для каждого кулона — коротко и по смыслу аркана из ТЗ
     const why = {
       empress: "Подойдёт, если хочется больше изобилия, женственности, магнетизма и заботы о себе — мягко наполняет и помогает создавать гармонию вокруг.",
       wheel: "Подойдёт, если нужен сдвиг и новый виток — поддерживает удачные повороты, выход из застоя и ощущение потока.",
@@ -584,7 +588,7 @@
     const recs = topList.length ? topList : [top];
     recs.forEach(k => pendantGrid.appendChild(buildPendantCard(k, why[k])));
 
-    // заполнение селекта в форме
+    // select для формы
     selectPendant.innerHTML = "";
     recs.forEach(k => {
       const opt = document.createElement("option");
@@ -593,7 +597,6 @@
       selectPendant.appendChild(opt);
     });
 
-    // Сохраним текст результата в скрытое поле
     quizResultField.value = `Top: ${ARCANA[top].title}; Recs: ${recs.map(r=>ARCANA[r].title).join(", ")}`;
 
     show(screenResult);
@@ -608,7 +611,6 @@
 
   btnNext.addEventListener("click", () => {
     if (!answers[idx]) return;
-
     if (idx === QUESTIONS.length - 1){
       renderResult();
       return;
@@ -627,20 +629,23 @@
     show(screenStart);
   });
 
-  btnOrder.addEventListener("click", () => {
-    toastOk.style.display = "none";
-    toastErr.style.display = "none";
-    show(screenOrder);
-  });
-
   btnBackToResult.addEventListener("click", () => show(screenResult));
 
+  // WhatsApp click
+  btnWhatsapp.addEventListener("click", (e) => {
+    e.preventDefault();
+    const arcanaText = window.recommendedArcanaText || "";
+    const message = `Здравствуйте! Я прошла тест Onegia и хочу заказать кулон по моей рекомендации: ${arcanaText}`;
+    const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  });
+
+  // (опционально) отправка формы
   orderForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     toastOk.style.display = "none";
     toastErr.style.display = "none";
 
-    // Если endpoint не заменён — покажем ошибку
     if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.includes("XXXXXXXX")){
       toastErr.textContent = "Не настроен endpoint Formspree. Замените FORMSPREE_ENDPOINT в коде.";
       toastErr.style.display = "block";
@@ -660,7 +665,6 @@
         toastOk.style.display = "block";
         orderForm.reset();
 
-        // восстановим select и hidden, потому что reset их очистит
         const recs = lastTopList.length ? lastTopList : [lastTop];
         selectPendant.innerHTML = "";
         recs.forEach(k => {
