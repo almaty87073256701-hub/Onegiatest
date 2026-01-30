@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Onegia — тест на энергию периода</title>
+
   <style>
     :root{
       --bg:#0f0f14;
@@ -12,31 +13,56 @@
       --muted:#b7b7c7;
       --accent:#d7b46a;
       --accent2:#8b7cff;
+
+      /* Tiffany (бренд) */
+      --tiffany:#81D8D0;
+
       --danger:#ff6b6b;
       --ok:#2ee59d;
       --radius:18px;
     }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1000px 600px at 30% 10%, rgba(139,124,255,.18), transparent 60%),
-                  radial-gradient(900px 500px at 70% 0%, rgba(215,180,106,.16), transparent 55%),
-                  var(--bg);
+      background:
+        radial-gradient(1000px 600px at 30% 10%, rgba(139,124,255,.18), transparent 60%),
+        radial-gradient(900px 500px at 70% 0%, rgba(215,180,106,.16), transparent 55%),
+        var(--bg);
       color:var(--text);
       line-height:1.45;
     }
+
     .wrap{max-width:980px;margin:0 auto;padding:28px 16px 64px}
+
     header{
       display:flex; align-items:center; gap:14px;
-      padding:12px 14px; border:1px solid rgba(255,255,255,.08);
+      padding:14px 16px;
+      border:1px solid rgba(255,255,255,.08);
       background:rgba(255,255,255,.03);
       border-radius: var(--radius);
-      position:sticky; top:12px; backdrop-filter: blur(10px);
+      position:sticky; top:12px;
+      backdrop-filter: blur(10px);
       z-index: 10;
     }
+
     header img{height:34px;width:auto}
-    header .brand{font-weight:700; letter-spacing:.4px}
+
+    /* ===== Верхний текст крупнее ===== */
+    header .brand{
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .6px;
+      line-height: 1.05;
+    }
+    header .subtitle{
+      font-size: 14px;
+      color: rgba(255,255,255,.72);
+      margin-top: 4px;
+    }
+
     .card{
       margin-top:18px;
       background: rgba(255,255,255,.03);
@@ -44,10 +70,96 @@
       border-radius: var(--radius);
       padding:22px;
     }
+
+    /* =========================
+       HERO (только первый экран)
+       ========================= */
+    #screenStart.hero{
+      position: relative;
+      overflow: hidden;
+      min-height: 520px;         /* чтобы фото не казалось маленьким */
+      border-radius: var(--radius);
+      padding: 34px 26px;
+    }
+
+    /* Фото-фон */
+    #screenStart.hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+
+      background-image: url("img/hero.jpg");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: contain; /* ПК: видно фото целиком */
+
+      /* “люксовые поля” */
+      background-color: rgba(10,10,14,.35);
+
+      z-index:0;
+    }
+
+    /* Вуаль для читаемости текста + чуть Tiffany */
+    #screenStart.hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+
+      background:
+        linear-gradient(90deg,
+          rgba(245,240,236,.90) 0%,
+          rgba(245,240,236,.76) 45%,
+          rgba(245,240,236,.40) 100%),
+        radial-gradient(900px 500px at 15% 30%,
+          rgba(129,216,208,.22), transparent 60%);
+
+      z-index:1;
+    }
+
+    /* Контент поверх фона */
+    #screenStart.hero > *{
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Текст на hero — тёмный и читаемый */
+    #screenStart.hero h1{
+      font-size: 34px;
+      margin: 0 0 10px;
+      color: rgba(18,18,22,.92);
+      text-shadow: none;
+      max-width: 740px;
+    }
+
+    #screenStart.hero p{
+      margin: 10px 0;
+      color: rgba(18,18,22,.70);
+      font-weight: 500;
+      max-width: 740px;
+    }
+
+    /* На телефоне лучше cover (красиво, без пустот) */
+    @media (max-width: 700px){
+      #screenStart.hero{
+        min-height: 520px;
+        padding: 26px 18px;
+      }
+      #screenStart.hero::before{
+        background-size: cover;      /* мобилка: без пустых полей */
+        background-position: center top;
+      }
+      #screenStart.hero h1{
+        font-size: 26px;
+      }
+    }
+
     h1{font-size:28px;margin:0 0 10px}
     h2{font-size:22px;margin:0 0 10px}
     p{margin:10px 0;color:var(--muted)}
+
     .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
     button{
       border:0; cursor:pointer;
       padding:12px 16px;
@@ -56,14 +168,24 @@
       color:#111;
       background: linear-gradient(90deg,var(--accent),#f1d9a0);
     }
+
     button.secondary{
       color:var(--text);
       background: transparent;
       border:1px solid rgba(255,255,255,.16);
     }
-    button:disabled{
-      opacity:.45; cursor:not-allowed;
+
+    button:disabled{opacity:.45; cursor:not-allowed;}
+
+    /* Кнопка "Пройти тест" — Tiffany */
+    #btnStart{
+      color: #0b1212;
+      background: linear-gradient(90deg, var(--tiffany), #b7fff8);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(129,216,208,.18);
     }
+    #btnStart:hover{filter: brightness(0.97);}
+
     .progress{
       margin-top:10px;
       height:10px;
@@ -77,9 +199,11 @@
       background: linear-gradient(90deg,var(--accent2),var(--accent));
       transition: width .25s ease;
     }
+
     .qtitle{font-size:20px;margin:0 0 12px;color:var(--text)}
     .hint{font-size:13px;color:rgba(255,255,255,.55);margin-top:-2px}
     .options{display:grid; gap:10px; margin-top:14px}
+
     label.opt{
       display:flex; gap:10px; align-items:flex-start;
       padding:12px 12px;
@@ -91,6 +215,7 @@
     }
     label.opt:hover{transform: translateY(-1px); border-color: rgba(215,180,106,.45)}
     input[type="radio"]{margin-top:4px}
+
     .split{
       display:grid;
       grid-template-columns: 1.25fr .75fr;
@@ -98,6 +223,7 @@
       align-items:start;
     }
     @media (max-width:860px){ .split{grid-template-columns:1fr} }
+
     .pill{
       display:inline-flex;gap:8px;align-items:center;
       padding:6px 10px;
@@ -108,6 +234,7 @@
       font-size:13px;
       margin-top:10px;
     }
+
     .resultGrid{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -115,6 +242,7 @@
       margin-top:14px;
     }
     @media (max-width:860px){ .resultGrid{grid-template-columns:1fr} }
+
     .pendant{
       border-radius: 18px;
       border:1px solid rgba(255,255,255,.10);
@@ -131,6 +259,7 @@
     .pendant .pbody{padding:12px}
     .pendant h3{margin:0 0 6px;font-size:18px}
     .pendant p{margin:0;color:var(--muted);font-size:14px}
+
     .form{
       display:grid;gap:10px;margin-top:14px;
     }
@@ -144,6 +273,7 @@
       outline:none;
     }
     .form small{color:rgba(255,255,255,.55)}
+
     .toast{
       margin-top:10px;
       padding:10px 12px;
@@ -176,12 +306,12 @@
       <img src="img/logo.png" alt="Onegia logo" onerror="this.style.display='none'">
       <div>
         <div class="brand">Onegia</div>
-        <div style="font-size:12px;color:rgba(255,255,255,.55)">Диагностический тест для выбора кулона на период</div>
+        <div class="subtitle">Диагностический тест для выбора кулона на период</div>
       </div>
     </header>
 
     <!-- SCREEN: START -->
-    <section id="screenStart" class="card">
+    <section id="screenStart" class="card hero">
       <h1>Пройдите тест, чтобы понять, какой кулон вам необходим в данный момент</h1>
       <p>
         Выберите варианты, которые откликаются больше всего. Здесь нет “правильных” ответов —
@@ -240,7 +370,7 @@
       </div>
     </section>
 
-    <!-- SCREEN: ORDER (оставил, если тебе нужна форма) -->
+    <!-- SCREEN: ORDER -->
     <section id="screenOrder" class="card" style="display:none">
       <h1>Заказать аркан</h1>
       <p>Оставьте контакты — и мы свяжемся с вами для уточнения деталей.</p>
@@ -280,41 +410,23 @@
 
   // ====== ДАННЫЕ ======
   const ARCANA = {
-    empress: {
-      key: "empress",
-      title: "III Императрица",
-      img: "img/empress.jpg",
-      meaning: "Аркан изобилия, роста и женственности. Кулон раскрывает женственность, магнетизм, чувственность, красоту, творческий потенциал. Помогает притягивать процветание, плодородие во всех сферах, гармонию в семье. Наполняет мягкой силой, заботой о себе и умении создавать комфорт вокруг."
+    empress: { key:"empress", title:"III Императрица", img:"img/empress.jpg",
+      meaning:"Аркан изобилия, роста и женственности. Кулон раскрывает женственность, магнетизм, чувственность, красоту, творческий потенциал. Помогает притягивать процветание, плодородие во всех сферах, гармонию в семье. Наполняет мягкой силой, заботой о себе и умении создавать комфорт вокруг."
     },
-    wheel: {
-      key: "wheel",
-      title: "X Колесо Фортуны",
-      img: "img/wheel.jpg",
-      meaning: "Аркан перемен и удачных поворотов. Привлекает удачу, счастливые совпадения, помогает выйти из застоя, войти в поток и повернуть события в нужную сторону."
+    wheel: { key:"wheel", title:"X Колесо Фортуны", img:"img/wheel.jpg",
+      meaning:"Аркан перемен и удачных поворотов. Привлекает удачу, счастливые совпадения, помогает выйти из застоя, войти в поток и повернуть события в нужную сторону."
     },
-    star: {
-      key: "star",
-      title: "XVII Звезда",
-      img: "img/star.jpg",
-      meaning: "Аркан вдохновения, проявленности и популярности. Помогает восстановиться после трудностей, поверить в себя, почувствовать поддержку, раскрыть творчество и смело заявить о себе."
+    star: { key:"star", title:"XVII Звезда", img:"img/star.jpg",
+      meaning:"Аркан вдохновения, проявленности и популярности. Помогает восстановиться после трудностей, поверить в себя, почувствовать поддержку, раскрыть творчество и смело заявить о себе."
     },
-    sun: {
-      key: "sun",
-      title: "XIX Солнце",
-      img: "img/sun.jpg",
-      meaning: "Аркан победы, радости и жизненной энергии. Усиливает уверенность, харизму, жизненную силу, притягивает успех, внимание, изобилие и поддержку, укрепляет здоровье."
+    sun: { key:"sun", title:"XIX Солнце", img:"img/sun.jpg",
+      meaning:"Аркан победы, радости и жизненной энергии. Усиливает уверенность, харизму, жизненную силу, притягивает успех, внимание, изобилие и поддержку, укрепляет здоровье."
     },
-    ace: {
-      key: "ace",
-      title: "Туз Пентаклей",
-      img: "img/ace.jpg",
-      meaning: "Аркан материального роста и новых возможностей. Помогает привлечь деньги, стабильность, заложить фундамент для будущего успеха, материализовать идеи, сделать первый шаг в важном деле."
+    ace: { key:"ace", title:"Туз Пентаклей", img:"img/ace.jpg",
+      meaning:"Аркан материального роста и новых возможностей. Помогает привлечь деньги, стабильность, заложить фундамент для будущего успеха, материализовать идеи, сделать первый шаг в важном деле."
     },
-    magician: {
-      key: "magician",
-      title: "I Маг",
-      img: "img/magician.jpg",
-      meaning: "Аркан силы воли, ясности и влияния. Усиливает личную энергию, концентрацию, уверенность, помогает проявлять задуманное, начинать проекты, влиять на события и быстрее реализовывать желания."
+    magician: { key:"magician", title:"I Маг", img:"img/magician.jpg",
+      meaning:"Аркан силы воли, ясности и влияния. Усиливает личную энергию, концентрацию, уверенность, помогает проявлять задуманное, начинать проекты, влиять на события и быстрее реализовывать желания."
     }
   };
 
@@ -565,7 +677,6 @@
   function renderResult(){
     const { top, topList } = scoreResults();
 
-    // текст арканов для WhatsApp
     const arcanaNames = topList.map(key => ARCANA[key].title).join(", ");
     window.recommendedArcanaText = arcanaNames;
 
@@ -588,7 +699,6 @@
     const recs = topList.length ? topList : [top];
     recs.forEach(k => pendantGrid.appendChild(buildPendantCard(k, why[k])));
 
-    // select для формы
     selectPendant.innerHTML = "";
     recs.forEach(k => {
       const opt = document.createElement("option");
@@ -631,7 +741,6 @@
 
   btnBackToResult.addEventListener("click", () => show(screenResult));
 
-  // WhatsApp click
   btnWhatsapp.addEventListener("click", (e) => {
     e.preventDefault();
     const arcanaText = window.recommendedArcanaText || "";
