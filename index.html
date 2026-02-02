@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Onegia — тест на энергию периода</title>
+
+  <style>
+    :root{
+      --bg:#0f0f14;
+      --card:#171723;
+      --text:#f4f4f7;
+      --muted:#b7b7c7;
+      --accent:#d7b46a;
+      --accent2:#8b7cff;
+
+      /* Tiffany (бренд) */
+      --tiffany:#81D8D0;
+
+      --danger:#ff6b6b;
+      --ok:#2ee59d;
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1000px 600px at 30% 10%, rgba(139,124,255,.18), transparent 60%),
+        radial-gradient(900px 500px at 70% 0%, rgba(215,180,106,.16), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      line-height:1.45;
+    }
+
+    .wrap{max-width:980px;margin:0 auto;padding:28px 16px 64px}
+
+    header{
+      display:flex; align-items:center; gap:14px;
+      padding:14px 16px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03);
+      border-radius: var(--radius);
+      position:sticky; top:12px;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    header img{height:34px;width:auto}
+
+    /* ===== Верхний текст крупнее ===== */
+    header .brand{
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: .6px;
+      line-height: 1.05;
+    }
+    header .subtitle{
+      font-size: 14px;
+      color: rgba(255,255,255,.72);
+      margin-top: 4px;
+    }
+
+    .card{
+      margin-top:18px;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding:22px;
+    }
+
+    /* =========================
+       HERO (только первый экран)
+       ========================= */
+    #screenStart.hero{
+      position: relative;
+      overflow: hidden;
+      min-height: 520px;
+      border-radius: var(--radius);
+      padding: 0;
+    }
+
+    .hero-layout{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 520px;
+    }
+    .hero-panel{
+      position: relative;
+      min-height: 520px;
+      display:flex;
+      align-items:center;
+      padding: 34px 26px;
+    }
+    .hero-panel--left{
+      background-image: url("img/hero.jpg");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+    }
+    .hero-panel--left::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg,
+          rgba(245,240,236,.90) 0%,
+          rgba(245,240,236,.76) 45%,
+          rgba(245,240,236,.40) 100%),
+        radial-gradient(900px 500px at 15% 30%,
+          rgba(129,216,208,.22), transparent 60%);
+      z-index:1;
+    }
+    .hero-panel--right{
+      background-image: url("img/olga.jpg");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+    }
+    .hero-panel__content{
+      position: relative;
+      z-index: 2;
+      max-width: 420px;
+    }
+    .hero-caption{
+      position:absolute;
+      left: 20px;
+      bottom: 16px;
+      background: rgba(0,0,0,.35);
+      color: rgba(255,255,255,.9);
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(6px);
+    }
+
+    /* Текст на hero — тёмный и читаемый */
+    #screenStart.hero h1{
+      font-size: 34px;
+      margin: 0 0 10px;
+      color: rgba(18,18,22,.92);
+      text-shadow: none;
+      max-width: 740px;
+    }
+
+    #screenStart.hero p{
+      margin: 10px 0;
+      color: rgba(18,18,22,.70);
+      font-weight: 500;
+      max-width: 740px;
+    }
+
+    /* На телефоне лучше cover (красиво, без пустот) */
+    @media (max-width: 860px){
+      .hero-layout{ grid-template-columns: 1fr; }
+      .hero-panel{ min-height: 420px; }
+      .hero-panel__content{ max-width: 100%; }
+      #screenStart.hero h1{ font-size: 26px; }
+    }
+
+    h1{font-size:28px;margin:0 0 10px}
+    h2{font-size:22px;margin:0 0 10px}
+    p{margin:10px 0;color:var(--muted)}
+
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+    button{
+      border:0; cursor:pointer;
+      padding:12px 16px;
+      border-radius: 999px;
+      font-weight:700;
+      color:#111;
+      background: linear-gradient(90deg,var(--accent),#f1d9a0);
+    }
+
+    button.secondary{
+      color:var(--text);
+      background: transparent;
+      border:1px solid rgba(255,255,255,.16);
+    }
+
+    button:disabled{opacity:.45; cursor:not-allowed;}
+
+    /* Кнопка "Пройти тест" — золото */
+    #btnStart{
+      color: #1a1206;
+      background: linear-gradient(90deg, #d7b46a, #f1d9a0);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(215,180,106,.22);
+    }
+    #btnStart:hover{filter: brightness(0.98);}
+
+    .progress{
+      margin-top:10px;
+      height:10px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px;
+      overflow:hidden;
+
+      position: relative;
+    }
+    .bar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg,var(--accent2),var(--accent));
+      transition: width .25s ease;
+    }
+
+    .qtitle{font-size:20px;margin:0 0 12px;color:var(--text)}
+    .hint{font-size:13px;color:rgba(255,255,255,.55);margin-top:-2px}
+    .options{display:grid; gap:10px; margin-top:14px}
+
+    label.opt{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.02);
+      cursor:pointer;
+      transition: transform .08s ease, border-color .08s ease;
+    }
+    label.opt:hover{transform: translateY(-1px); border-color: rgba(215,180,106,.45)}
+    input[type="radio"]{margin-top:4px}
+
+    .split{
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width:860px){ .split{grid-template-columns:1fr} }
+
+    .pill{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(139,124,255,.14);
+      border:1px solid rgba(139,124,255,.28);
+      color: rgba(255,255,255,.9);
+      font-size:13px;
+      margin-top:10px;
+    }
+
+    .resultGrid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:14px;
+    }
+    @media (max-width:860px){ .resultGrid{grid-template-columns:1fr} }
+
+    .pendant{
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.02);
+      overflow:hidden;
+    }
+    .pendant img{
+      width:100%;
+      height:230px;
+      object-fit:cover;
+      display:block;
+      background: rgba(255,255,255,.04);
+      cursor: zoom-in;
+      transition: transform 180ms ease;
+    }
+    .pendant img:hover{
+      transform: scale(1.02);
+    }
+
+    .pendant .pbody{padding:12px}
+    .pendant h3{margin:0 0 6px;font-size:18px}
+    .pendant p{margin:0;color:var(--muted);font-size:14px}
+
+    .form{
+      display:grid;gap:10px;margin-top:14px;
+    }
+    .form input, .form select{
+      width:100%;
+      padding:12px 12px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.16);
+      color: var(--text);
+      outline:none;
+    }
+    .form small{color:rgba(255,255,255,.55)}
+
+    .toast{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: rgba(255,255,255,.85);
+      display:none;
+    }
+    .toast.ok{border-color: rgba(46,229,157,.35)}
+    .toast.err{border-color: rgba(255,107,107,.35)}
+
+    /* WhatsApp button */
+    .btn-whatsapp{
+      display:inline-block;
+      padding:12px 18px;
+      border-radius:999px;
+      font-weight:700;
+      color:#111;
+      text-decoration:none;
+      background:#25D366;
+    }
+    .btn-whatsapp:hover{ filter: brightness(0.95); }
+
+    .btn-tiffany{
+      display:inline-block;
+      padding:12px 18px;
+      border-radius:999px;
+      font-weight:700;
+      color:#0b1212;
+      text-decoration:none;
+      background: linear-gradient(90deg, var(--tiffany), #b7fff8);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(129,216,208,.18);
+    }
+    .btn-tiffany:hover{ filter: brightness(0.97); }
+
+    .btn-gold{
+      display:inline-block;
+      padding:12px 18px;
+      border-radius:999px;
+      font-weight:700;
+      color:#1a1206;
+      text-decoration:none;
+      background: linear-gradient(90deg, #d7b46a, #f1d9a0);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(215,180,106,.22);
+    }
+    .btn-gold:hover{ filter: brightness(0.98); }
+
+    .choker-list{
+      display:grid;
+      gap:16px;
+      margin-top:16px;
+    }
+    .choker-item{
+      display:grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap:16px;
+      align-items:start;
+      padding:14px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.02);
+    }
+    .choker-item h3{
+      margin:0 0 6px;
+      font-size:18px;
+      color: var(--text);
+    }
+    .choker-item p{
+      margin:6px 0;
+      color: var(--muted);
+    }
+    .choker-like{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:12px;
+      font-size:14px;
+      color: var(--text);
+    }
+    .choker-item img{
+      width:70%;
+      height:auto;
+      border-radius: 14px;
+      display:block;
+      object-fit:cover;
+      cursor: zoom-in;
+      transition: transform 180ms ease;
+    }
+    .choker-media{
+      display:flex;
+      justify-content:center;
+    }
+    .choker-item img:hover{ transform: scale(1.02); }
+    @media (max-width:860px){
+      .choker-item{ grid-template-columns:1fr; }
+    }
+
+    /* ====== Lightbox для фото арканов ====== */
+    .lightbox{
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(8, 8, 12, 0.0);
+      opacity: 0;
+      pointer-events: none;
+      backdrop-filter: blur(0px);
+      transition: opacity 220ms ease, background 220ms ease, backdrop-filter 220ms ease;
+      z-index: 9999;
+    }
+
+    .lightbox.is-open{
+      opacity: 1;
+      pointer-events: auto;
+      background: rgba(8, 8, 12, 0.7);
+      backdrop-filter: blur(6px);
+    }
+
+    .lightbox__img{
+      max-width: min(92vw, 860px);
+      max-height: 86vh;
+      border-radius: 18px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.45);
+      transform: scale(.88);
+      opacity: 0;
+      transition: transform 220ms ease, opacity 220ms ease;
+      cursor: zoom-out;
+    }
+
+    .lightbox.is-open .lightbox__img{
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .lightbox,
+      .lightbox__img,
+      .pendant img{
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <img src="img/logo.png" alt="Onegia logo" onerror="this.style.display='none'">
+      <div>
+        <div class="brand">Onegia</div>
+        <div class="subtitle" id="headerSubtitle">Диагностический тест для выбора кулона на период</div>
+      </div>
+    </header>
+
+    <!-- SCREEN: START -->
+    <section id="screenStart" class="card hero">
+      <div class="hero-layout">
+        <div class="hero-panel hero-panel--left">
+          <div class="hero-panel__content">
+            <h1>Пройдите тест, чтобы понять, какой кулон вам необходим в данный момент</h1>
+            <p>
+              Выберите варианты, которые откликаются больше всего. Здесь нет “правильных” ответов —
+              тест мягко подсветит, какой ресурс сейчас важно поддержать.
+            </p>
+            <div class="btnrow">
+              <button class="btn-gold" id="btnStart">Пройти тест</button>
+            </div>
+          </div>
+        </div>
+        <div class="hero-panel hero-panel--right">
+          <div class="hero-caption">Основатель бренда O`negia — Ольга Виль</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN: QUIZ -->
+    <section id="screenQuiz" class="card" style="display:none">
+      <div class="split">
+        <div>
+          <div class="pill"><span id="qCounter">Вопрос 1/9</span></div>
+          <div class="progress"><div class="bar" id="bar"></div></div>
+
+          <h2 style="margin-top:14px">Тест</h2>
+          <div class="hint">Выберите один ответ и нажмите “Следующий вопрос”.</div>
+
+          <h3 class="qtitle" id="qTitle"></h3>
+          <div class="options" id="qOptions"></div>
+
+          <div class="btnrow">
+            <button class="secondary" id="btnBack" type="button">Назад</button>
+            <button id="btnNext" type="button" disabled>Следующий вопрос</button>
+          </div>
+        </div>
+
+        <div>
+          <h2>Как работает подбор</h2>
+          <p>
+            Каждый ответ помогает увидеть, какая энергия сейчас важна для вас.
+            В конце вы получите персональную рекомендацию 2–3 кулонов — как поддержку вашего запроса.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN: RESULT -->
+    <section id="screenResult" class="card" style="display:none">
+      <h1>Ваша рекомендация</h1>
+      <div id="resultText"></div>
+
+      <h2 style="margin-top:16px">Рекомендованные кулоны</h2>
+      <div class="resultGrid" id="pendantGrid"></div>
+      <p style="margin-top:12px;color:rgba(255,255,255,.65)">
+        Кулон выполнен из гипоаллергенной медицинской стали с покрытием из золота 18 карат.
+        Вставки — натуральный перламутр и цирконы.
+        Украшение устойчиво к потемнению и подходит для регулярного ношения.
+        Длинна цепочки 45+5см.
+      </p>
+      <p style="margin-top:10px;color:rgba(255,255,255,.75)">
+        Стоимость одного кулона с цепочкой — 33 990 ₸
+      </p>
+
+      <div class="btnrow" style="margin-top:18px">
+        <button class="btn-gold" id="btnChoker" type="button">
+          Усилить аркан Таро энергией камней
+        </button>
+      </div>
+      <div class="btnrow" style="margin-top:12px">
+        <a href="#" id="btnWhatsapp" class="btn-whatsapp">Заказать аркан</a>
+      </div>
+    </section>
+
+    <!-- SCREEN: ORDER -->
+    <section id="screenOrder" class="card" style="display:none">
+      <h1>Заказать аркан</h1>
+      <p>Оставьте контакты — и мы свяжемся с вами для уточнения деталей.</p>
+
+      <form class="form" id="orderForm">
+        <input name="name" id="name" placeholder="Имя" required />
+        <input name="phone" id="phone" placeholder="Номер телефона" required />
+        <select name="pendant" id="pendant" required></select>
+
+        <input type="hidden" name="quiz_result" id="quiz_result" />
+
+        <small>
+          Нажимая “Отправить заявку”, вы соглашаетесь на обработку контактных данных для связи по вашему запросу.
+        </small>
+
+        <div class="btnrow">
+          <button type="submit" id="btnSubmit">Отправить заявку</button>
+          <button type="button" class="secondary" id="btnBackToResult">Назад к рекомендации</button>
+        </div>
+
+        <div class="toast ok" id="toastOk">Заявка отправлена ✅ Мы скоро свяжемся с вами.</div>
+        <div class="toast err" id="toastErr">Не удалось отправить заявку. Проверьте настройки формы.</div>
+      </form>
+
+      <p style="margin-top:12px;color:rgba(255,255,255,.55)">
+        ⚙️ По умолчанию форма настроена на Formspree. Можно заменить на Google Forms или Netlify Forms.
+      </p>
+    </section>
+
+    <!-- SCREEN: CHOKER -->
+    <section id="screenChoker" class="card" style="display:none">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <h1 style="margin:0">Чокер из натуралных камней — под ваш запрос</h1>
+        <button class="secondary" id="btnBackToResultTop" type="button">Вернуться к рекомендациям</button>
+      </div>
+      <div class="choker-list" id="chokerList">
+        <div class="choker-item">
+          <div class="choker-media">
+            <img src="img/citrin.jpg" alt="Чокер с ЦИТРИНОМ" loading="lazy">
+          </div>
+          <div>
+            <h3>Чокер с цитрином</h3>
+            <p>Цитрин — камень внутреннего света и уверенной энергии роста. Его выбирают в моменты, когда важно чувствовать ясность, силу намерения и спокойную уверенность в своих шагах.</p>
+            <p>Состояния, с которыми резонирует цитрин:</p>
+            <p>• ощущение изобилия и расширения<br>
+            • вдохновение и готовность к действиям<br>
+            • уверенность, идущая изнутри<br>
+            • восстановление энергии и интереса к жизни<br>
+            • мягкая защита личных границ</p>
+            <p>Выберите цитрин,<br>
+            если сейчас вам близки свет, рост и внутренняя уверенность.<br>
+            Когда хочется ясности, энергии и спокойного ощущения изобилия.</p>
+            <label class="choker-like">
+              <input type="checkbox" name="choker_like" value="Чокер с цитрином">
+              Нравится
+            </label>
+          </div>
+        </div>
+        <div class="choker-item">
+          <div class="choker-media">
+            <img src="img/gematit.jpg" alt="Чокер с ГЕМАТИТОМ" loading="lazy">
+          </div>
+          <div>
+            <h3>Чокер из гематитом</h3>
+            <p>Гематит — камень заземления и внутренней собранности. Он создаёт ощущение устойчивости, ясности и контроля над своим состоянием.</p>
+            <p>Подходит тем, кто ценит:</p>
+            <p>• стабильность и внутреннюю опору<br>
+            • концентрацию и чистоту мыслей<br>
+            • энергетическую защиту<br>
+            • уверенность без напряжения<br>
+            • баланс и спокойствие</p>
+            <p>Выберите гематит,<br>
+            если важно заземлиться и почувствовать устойчивость.<br>
+            Когда нужно вернуть фокус, тишину ума и внутреннюю опору.</p>
+            <label class="choker-like">
+              <input type="checkbox" name="choker_like" value="Чокер из гематитом">
+              Нравится
+            </label>
+          </div>
+        </div>
+        <div class="choker-item">
+          <div class="choker-media">
+            <img src="img/granat.jpg" alt="Чокер с ГРАНАТОМ" loading="lazy">
+          </div>
+          <div>
+            <h3>Чокер из граната</h3>
+            <p>Гранат — камень силы, страсти и притяжения. Его энергия раскрывается постепенно, усиливая харизму и ощущение собственной значимости.</p>
+            <p>Выбор для состояний:</p>
+            <p>• жизненная энергия и внутренняя сила<br>
+            • уверенность и магнетизм<br>
+            • решительность и смелость<br>
+            • чувственность и глубина<br>
+            • движение вперёд без сомнений</p>
+            <p>Выберите гранат,<br>
+            если внутри просыпается сила и желание жить ярче.<br>
+            Когда время действовать, чувствовать и идти вперёд без сомнений.</p>
+            <label class="choker-like">
+              <input type="checkbox" name="choker_like" value="Чокер из граната">
+              Нравится
+            </label>
+          </div>
+        </div>
+        <div class="choker-item">
+          <div class="choker-media">
+            <img src="img/jemchug.jpg" alt="Чокер с ЖЕМЧУГОМ" loading="lazy">
+          </div>
+          <div>
+            <h3>Чокер из жемчуга</h3>
+            <p>Жемчуг — символ утончённой женственности и внутренней гармонии. Камень тишины, мягкой силы и эмоционального баланса.</p>
+            <p>Резонирует с состояниями:</p>
+            <p>• спокойствие и чистота чувств<br>
+            • защищённость и мягкость<br>
+            • гармония в отношениях<br>
+            • интуитивное восприятие<br>
+            • природная элегантность</p>
+            <p>Выберите жемчуг,<br>
+            если вам нужна мягкость и спокойствие.<br>
+            Когда хочется тишины, гармонии и тонкого контакта с собой.</p>
+            <label class="choker-like">
+              <input type="checkbox" name="choker_like" value="Чокер из жемчуга">
+              Нравится
+            </label>
+          </div>
+        </div>
+        <div class="choker-item">
+          <div class="choker-media">
+            <img src="img/perlamutr.jpg" alt="Чокер с ПЕРЛАМУТРОМ" loading="lazy">
+          </div>
+          <div>
+            <h3>Чокер из перламутра</h3>
+            <p>Перламутр — светлая, обволакивающая энергия. Он словно отражает внутренний свет, усиливая интуицию и ощущение целостности.</p>
+            <p>Подходит для состояний:</p>
+            <p>• эмоциональное равновесие<br>
+            • защита и внутренний покой<br>
+            • доверие к себе<br>
+            • семейная гармония<br>
+            • ощущение лёгкости и чистоты</p>
+            <p>Выберите перламутр,<br>
+            если вы ищете баланс и защиту.<br>
+            Когда важно доверять интуиции и сохранять внутренний свет.</p>
+            <label class="choker-like">
+              <input type="checkbox" name="choker_like" value="Чокер из перламутра">
+              Нравится
+            </label>
+          </div>
+        </div>
+        <div class="choker-item">
+          <div class="choker-media">
+            <img src="img/rubin.jpg" alt="Чокер с РУБИНОМ" loading="lazy">
+          </div>
+          <div>
+            <h3>Чокер из Рубина</h3>
+            <p>Рубин — камень власти, страсти и жизненной силы. Он выбирается интуитивно, когда приходит время заявить о себе.</p>
+            <p>Состояния рубина:</p>
+            <p>• энергия и огонь жизни<br>
+            • уверенность и лидерство<br>
+            • притяжение и страсть<br>
+            • сила намерения<br>
+            • смелость быть заметной</p>
+            <p>Выберите рубин,<br>
+            если пришло время заявить о себе.<br>
+            Когда вы готовы быть заметной, сильной и уверенной в своём желании.</p>
+            <label class="choker-like">
+              <input type="checkbox" name="choker_like" value="Чокер из Рубина">
+              Нравится
+            </label>
+          </div>
+        </div>
+        <div class="choker-item">
+          <div class="choker-media">
+            <img src="img/shpinel.jpg" alt="Чокер с ЧЁРНОЙ ШПИНЕЛЬЮ" loading="lazy">
+          </div>
+          <div>
+            <h3>Чокер из чёрной шпинели</h3>
+            <p>Чёрная шпинель — сдержанная сила и глубокая защита. Камень внутреннего стержня и ясности.</p>
+            <p>Резонирует с состояниями:</p>
+            <p>• защита и устойчивость<br>
+            • очищение от лишнего<br>
+            • уверенность и харизма<br>
+            • внутренняя тишина<br>
+            • ощущение контроля и баланса</p>
+            <p>Выберите чёрную шпинель,<br>
+            если вам нужен внутренний стержень.<br>
+            Когда важно защитить своё пространство и сохранить ясность.</p>
+            <label class="choker-like">
+              <input type="checkbox" name="choker_like" value="Чокер из чёрной шпинели">
+              Нравится
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="btnrow" style="margin-top:18px">
+        <a href="#" id="btnChokerWhatsapp" class="btn-tiffany">Задать вопрос Ольге</a>
+      </div>
+    </section>
+  </div>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <img class="lightbox__img" id="lightboxImg" alt="">
+  </div>
+
+<script>
+  // ====== НАСТРОЙКА ОТПРАВКИ ФОРМЫ ======
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/XXXXXXXX"; // <-- ЗАМЕНИ или оставь
+
+  // ====== WhatsApp ======
+  const WHATSAPP_PHONE = "77761630783"; // <-- твой номер без +
+
+  // ====== ДАННЫЕ ======
+  const ARCANA = {
+    empress: { key:"empress", title:"III Императрица", img:"img/empress.jpg",
+      meaning:"Аркан изобилия, роста и женственности. Кулон раскрывает женственность, магнетизм, чувственность, красоту, творческий потенциал. Помогает притягивать процветание, плодородие во всех сферах, гармонию в семье. Наполняет мягкой силой, заботой о себе и умении создавать комфорт вокруг."
+    },
+    wheel: { key:"wheel", title:"X Колесо Фортуны", img:"img/wheel.jpg",
+      meaning:"Аркан перемен и удачных поворотов. Привлекает удачу, счастливые совпадения, помогает выйти из застоя, войти в поток и повернуть события в нужную сторону."
+    },
+    star: { key:"star", title:"XVII Звезда", img:"img/star.jpg",
+      meaning:"Аркан вдохновения, проявленности и популярности. Помогает восстановиться после трудностей, поверить в себя, почувствовать поддержку, раскрыть творчество и смело заявить о себе."
+    },
+    sun: { key:"sun", title:"XIX Солнце", img:"img/sun.jpg",
+      meaning:"Аркан победы, радости и жизненной энергии. Усиливает уверенность, харизму, жизненную силу, притягивает успех, внимание, изобилие и поддержку, укрепляет здоровье."
+    },
+    ace: { key:"ace", title:"Туз Пентаклей", img:"img/ace.jpg",
+      meaning:"Аркан материального роста и новых возможностей. Помогает привлечь деньги, стабильность, заложить фундамент для будущего успеха, материализовать идеи, сделать первый шаг в важном деле."
+    },
+    magician: { key:"magician", title:"I Маг", img:"img/magician.jpg",
+      meaning:"Аркан силы воли, ясности и влияния. Усиливает личную энергию, концентрацию, уверенность, помогает проявлять задуманное, начинать проекты, влиять на события и быстрее реализовывать желания."
+    }
+  };
+
+  const QUESTIONS = [
+    {
+      title: "Как вы в целом ощущаете себя в последнее врмя?",
+      options: [
+        { text: "Я устала(а), но внутри чувствую потенциал, который хочется раскрыть", arc: "star" },
+        { text: "Словно застряла: всё стабильно, но без движения", arc: "wheel" },
+        { text: "Мне не хватает веры в себя и внутреннего света", arc: "star" },
+        { text: "Я полна энергии, но хочу усилить уверенность и результат", arc: "sun" },
+        { text: "Готова к новому этапу, но пока не понимаю, с чего начать", arc: "magician" }
+      ]
+    },
+    {
+      title: "Если говорить о вашей энергии, она сейчас скорее…",
+      options: [
+        { text: "Мягкая и чувствительная — хочется заботы и тепла", arc: "empress" },
+        { text: "Рассеянная — как будто не хватает импульса", arc: "magician" },
+        { text: "Тихая — нужна пауза и восстановление", arc: "star" },
+        { text: "Яркая и активная — хочется действовать", arc: "sun" },
+        { text: "Практичная — направленная на конкретные цели", arc: "ace" }
+      ]
+    },
+    {
+      title: "Что больше всего волнует вас в теме денег и реализации?",
+      options: [
+        { text: "Хочется изобилия без постоянного напряжения", arc: "empress" },
+        { text: "Нужен сдвиг: новые возможности, выход из застоя", arc: "wheel" },
+        { text: "Хочется поверить, что мой путь и мой талант ценны", arc: "star" },
+        { text: "Хочу большего масштаба и признания", arc: "sun" },
+        { text: "Важно заложить стабильную основу на будущее", arc: "ace" }
+      ]
+    },
+    {
+      title: "Как вы сейчас относитесь к себе?",
+      options: [
+        { text: "Учусь быть к себе мягче и бережнее", arc: "empress" },
+        { text: "Иногда кажется, что я топчусь на месте", arc: "wheel" },
+        { text: "Не хватает уверенности и внутренней опоры", arc: "star" },
+        { text: "Чувствую силу, но хочу её усилить", arc: "magician" },
+        { text: "Знаю, что могу больше, чем сейчас проявляю", arc: "sun" }
+      ]
+    },
+    {
+      title: "Какое состояние вам сейчас особенно хочется почувствовать?",
+      options: [
+        { text: "Комфорт, красоту, удовольствие от жизни", arc: "empress" },
+        { text: "Лёгкость и ощущение, что всё складывается удачно", arc: "wheel" },
+        { text: "Надежду, вдохновение и внутренний свет", arc: "star" },
+        { text: "Радость, уверенность, ощущение победы", arc: "sun" },
+        { text: "Спокойную уверенность и материальную стабильность", arc: "ace" }
+      ]
+    },
+    {
+      title: "В отношениях с миром вы сейчас скорее…",
+      options: [
+        { text: "Хочу гармонии и тепла", arc: "empress" },
+        { text: "Жду знака, что пора что-то менять", arc: "wheel" },
+        { text: "Немного закрыта(т), но хочу снова доверять", arc: "star" },
+        { text: "Готова(в) ярко проявляться и быть замеченной", arc: "sun" },
+        { text: "Настроена(ен) действовать и создавать результат", arc: "magician" }
+      ]
+    },
+    {
+      title: "Как вы относитесь к переменам?",
+      options: [
+        { text: "Хочу мягких, естественных изменений", arc: "empress" },
+        { text: "Нужны перемены — я устала(а) от застоя", arc: "wheel" },
+        { text: "Боюсь, но чувствую, что они необходимы", arc: "star" },
+        { text: "Готова(в) и хочу идти вперёд смело", arc: "magician" },
+        { text: "Хочу изменений, которые дадут устойчивый результат", arc: "ace" }
+      ]
+    },
+    {
+      title: "Если представить идеальное ближайшее будущее, оно для вас про…",
+      options: [
+        { text: "Изобилие, красоту, наслаждение процессом", arc: "empress" },
+        { text: "Удачные совпадения и новые возможности", arc: "wheel" },
+        { text: "Веру в себя и раскрытие потенциала", arc: "star" },
+        { text: "Успех, признание, радость жизни", arc: "sun" },
+        { text: "Финансовый рост и уверенность в завтрашнем дне", arc: "ace" }
+      ]
+    },
+    {
+      title: "Какое внутреннее качество вы хотите усилить?",
+      options: [
+        { text: "Женственность/чувственность и заботу о себе", arc: "empress" },
+        { text: "Гибкость и умение быть в потоке", arc: "wheel" },
+        { text: "Вдохновение и доверие к жизни", arc: "star" },
+        { text: "Харизму и жизненную силу", arc: "sun" },
+        { text: "Волю, ясность и способность реализовывать задуманное", arc: "magician" }
+      ]
+    }
+  ];
+
+  // ====== UI refs ======
+  const screenStart  = document.getElementById("screenStart");
+  const screenQuiz   = document.getElementById("screenQuiz");
+  const screenResult = document.getElementById("screenResult");
+  const screenOrder  = document.getElementById("screenOrder");
+  const screenChoker = document.getElementById("screenChoker");
+
+  const btnStart  = document.getElementById("btnStart");
+  const btnNext   = document.getElementById("btnNext");
+  const btnBack   = document.getElementById("btnBack");
+
+  const qCounter  = document.getElementById("qCounter");
+  const bar       = document.getElementById("bar");
+  const qTitle    = document.getElementById("qTitle");
+  const qOptions  = document.getElementById("qOptions");
+
+  const resultText   = document.getElementById("resultText");
+  const pendantGrid  = document.getElementById("pendantGrid");
+  const btnChoker    = document.getElementById("btnChoker");
+
+  const btnWhatsapp = document.getElementById("btnWhatsapp");
+  const btnChokerWhatsapp = document.getElementById("btnChokerWhatsapp");
+  const btnBackToResultTop = document.getElementById("btnBackToResultTop");
+
+  const orderForm = document.getElementById("orderForm");
+  const selectPendant = document.getElementById("pendant");
+  const quizResultField = document.getElementById("quiz_result");
+  const toastOk  = document.getElementById("toastOk");
+  const toastErr = document.getElementById("toastErr");
+  const btnBackToResult = document.getElementById("btnBackToResult");
+  const chokerList = document.getElementById("chokerList");
+
+  const headerSubtitle = document.getElementById("headerSubtitle");
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
+
+  // ====== state ======
+  let idx = 0;
+  let answers = [];
+  let lastTop = null;
+  let lastTopList = [];
+  const defaultSubtitle = headerSubtitle.textContent;
+
+  function show(screen){
+    screenStart.style.display  = "none";
+    screenQuiz.style.display   = "none";
+    screenResult.style.display = "none";
+    screenOrder.style.display  = "none";
+    screenChoker.style.display = "none";
+    screen.style.display = "";
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function setHeaderSubtitle(text){
+    headerSubtitle.innerHTML = text.replace(/\n/g, "<br>");
+  }
+
+  function resetQuiz(){
+    idx = 0;
+    answers = Array(QUESTIONS.length).fill(null);
+    lastTop = null;
+    lastTopList = [];
+    btnNext.disabled = true;
+  }
+
+  function renderQuestion(){
+    const q = QUESTIONS[idx];
+    qCounter.textContent = `Вопрос ${idx+1}/${QUESTIONS.length}`;
+    bar.style.width = `${Math.round((idx / QUESTIONS.length) * 100)}%`;
+    qTitle.textContent = q.title;
+
+    qOptions.innerHTML = "";
+    btnNext.disabled = answers[idx] === null;
+
+    q.options.forEach((opt, i) => {
+      const id = `q${idx}_opt${i}`;
+
+      const label = document.createElement("label");
+      label.className = "opt";
+      label.htmlFor = id;
+
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "qopt";
+      radio.id = id;
+      radio.value = opt.arc;
+      radio.checked = answers[idx] === opt.arc;
+
+      radio.addEventListener("change", () => {
+        answers[idx] = opt.arc;
+        btnNext.disabled = false;
+      });
+
+      const text = document.createElement("div");
+      text.textContent = opt.text;
+
+      label.appendChild(radio);
+      label.appendChild(text);
+      qOptions.appendChild(label);
+    });
+
+    btnNext.textContent = (idx === QUESTIONS.length - 1)
+      ? "Получить рекомендацию"
+      : "Следующий вопрос";
+
+    btnBack.disabled = idx === 0;
+  }
+
+  function scoreResults(){
+    const score = { empress:0, wheel:0, star:0, sun:0, ace:0, magician:0 };
+    answers.forEach(a => { if(a) score[a]++; });
+
+    const sorted = Object.entries(score).sort((a,b) => b[1]-a[1]);
+
+    const topList = sorted
+      .filter(([,v]) => v > 0)
+      .slice(0,3)
+      .map(([k]) => k);
+
+    const top = topList[0] || "star";
+    return { score, top, topList };
+  }
+
+  function buildResultNarrative(top, second){
+    const A = ARCANA[top].title;
+
+    const mood = {
+      empress: "Похоже, сейчас вашему внутреннему миру особенно важны мягкость, наполнение и ощущение «мне можно». Когда вы возвращаете себе комфорт, красоту и заботу о себе, появляется спокойная сила — и из неё легче строить отношения, деньги и планы.",
+      wheel: "Сейчас вам может не хватать ощущения движения и живого потока. Как будто прежние сценарии уже тесны, а новый виток ещё не оформился. Мягкая поддержка перемен помогает выйти из застоя и заметить удачные возможности.",
+      star: "Похоже, вы проходите период, когда особенно нужна поддержка, вдохновение и возвращение веры в себя. Это не про «сломалось», а про бережное восстановление: дать себе время, заново почувствовать смысл и увидеть свой свет.",
+      sun: "Сейчас вашему состоянию может быть особенно ажно больше радости, уверенности и смелого проявления. Когда вы позволяете себе сиять, становится проще притягивать внимание, поддержку и результаты — без лишней борьбы.",
+      ace: "Похоже, вам важны опора и материальная устойчивость: понятные шаги, ясная база, ощущение «я на верном пути». Когда фундамент крепнет, идеи начинают легче превращаться в результаты и деньги.",
+      magician: "Сейчас особенно актуальны ясность, собранность и чувство влияния на свою реальность. Не «делать больше», а точнее направлять энергию: выбирать приоритеты, начинать и доводить до результата."
+    };
+
+    const bridge = second ? {
+      empress: "И дополнительно может поддержать энергия, которая возвращает телесность, удовольствие и умение бережно создавать вокруг себя комфорт.",
+      wheel: "И дополнительно может поддержать энергия, которая помогает отпустить контроль и довериться удачным поворотам — так появляется ощущение движения.",
+      star: "И дополнительно может поддержать энергия, которая бережно возвращает надежду, творчество и внутреннюю опору.",
+      sun: "И дополнительно может поддержать энергия, которая усиливает уверенность, харизму и «вкус к жизни».",
+      ace: "И дополнительно может поддержать энергия, которая помогает материализовать идеи и выстроить стабильность.",
+      magician: "И дополнительно может поддержать энергия, которая даёт волю, фокус и ясное «я могу»."
+    } : null;
+
+    return `
+      <p><strong>Ведущая энергия периода для вас — ${A}.</strong></p>
+      <p>${mood[top]}</p>
+      ${bridge ? `<p>${bridge[second]}</p>` : ""}
+    `;
+  }
+
+  function buildPendantCard(arcKey, whyText){
+    const a = ARCANA[arcKey];
+    const div = document.createElement("div");
+    div.className = "pendant";
+
+    div.innerHTML = `
+      <img src="${a.img}" alt="${a.title}" onerror="this.style.opacity='.65'">
+      <div class="pbody">
+        <h3>${a.title}</h3>
+        <p>${whyText}</p>
+      </div>
+    `;
+
+    return div;
+  }
+
+  function renderResult(){
+    const { top, topList } = scoreResults();
+
+    const arcanaNames = topList.map(key => ARCANA[key].title).join(", ");
+    window.recommendedArcanaText = arcanaNames;
+
+    lastTop = top;
+    lastTopList = topList;
+
+    const second = topList[1] || null;
+    resultText.innerHTML = buildResultNarrative(top, second);
+
+    const why = {
+      empress: "Подойдёт, если хочется больше изобилия, женственности, магнетизма и заботы о себе — мягко наполняет и помогает создавать гармонию вокруг.",
+      wheel: "Подойдёт, если нужен сдвиг и новый виток — поддерживает удачные повороты, выход из застоя и ощущение потока.",
+      star: "Подойдёт, если важно восстановиться, вернуть вдохновение и веру в себя — помогает мягко раскрывать потенциал и проявляться.",
+      sun: "Подойдёт, если хочется уверенности, радости и энергии победы — усиливает харизму и поддерживает успех.",
+      ace: "Подойдёт, если нужен материальный рост и опора — помогает заложить фундамент, привлечь стабильность и новые возможности.",
+      magician: "Подойдёт, если важны ясность и влияние — усиливает волю, концентрацию и помогает быстрее реализовывать задуманное."
+    };
+
+    pendantGrid.innerHTML = "";
+    const recs = topList.length ? topList : [top];
+    recs.forEach(k => pendantGrid.appendChild(buildPendantCard(k, why[k])));
+
+    selectPendant.innerHTML = "";
+    recs.forEach(k => {
+      const opt = document.createElement("option");
+      opt.value = ARCANA[k].title;
+      opt.textContent = ARCANA[k].title;
+      selectPendant.appendChild(opt);
+    });
+
+    quizResultField.value = `Top: ${ARCANA[top].title}; Recs: ${recs.map(r=>ARCANA[r].title).join(", ")}`;
+
+    setHeaderSubtitle(defaultSubtitle);
+    show(screenResult);
+  }
+
+  function openLightbox(src, alt){
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || "";
+    lightbox.classList.add("is-open");
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove("is-open");
+    lightbox.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    setTimeout(() => { lightboxImg.src = ""; }, 220);
+  }
+
+  // ====== events ======
+  btnStart.addEventListener("click", () => {
+    resetQuiz();
+    setHeaderSubtitle(defaultSubtitle);
+    show(screenQuiz);
+    renderQuestion();
+  });
+
+  btnNext.addEventListener("click", () => {
+    if (!answers[idx]) return;
+    if (idx === QUESTIONS.length - 1){
+      renderResult();
+      return;
+    }
+    idx++;
+    renderQuestion();
+  });
+
+  btnBack.addEventListener("click", () => {
+    if (idx === 0) return;
+    idx--;
+    renderQuestion();
+  });
+
+  btnBackToResult.addEventListener("click", () => {
+    setHeaderSubtitle(defaultSubtitle);
+    show(screenResult);
+  });
+
+  btnBackToResultTop.addEventListener("click", () => {
+    setHeaderSubtitle(defaultSubtitle);
+    show(screenResult);
+  });
+
+  btnChoker.addEventListener("click", () => {
+    setHeaderSubtitle("Аркан задаёт путь.\nКамень усиливает его энергию.");
+    show(screenChoker);
+  });
+
+  btnWhatsapp.addEventListener("click", (e) => {
+    e.preventDefault();
+    const arcanaText = window.recommendedArcanaText || "";
+    const message = `Здравствуйте! Я прошла тест Onegia и хочу заказать кулон по моей рекомендации: ${arcanaText}`;
+    const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  });
+
+  pendantGrid.addEventListener("click", (e) => {
+    const img = e.target.closest("img");
+    if (!img) return;
+
+    if (lightbox.classList.contains("is-open") && lightboxImg.src === img.src){
+      closeLightbox();
+      return;
+    }
+
+    openLightbox(img.src, img.alt);
+  });
+
+  chokerList.addEventListener("click", (e) => {
+    const img = e.target.closest("img");
+    if (!img) return;
+
+    if (lightbox.classList.contains("is-open") && lightboxImg.src === img.src){
+      closeLightbox();
+      return;
+    }
+
+    openLightbox(img.src, img.alt);
+  });
+
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox || e.target === lightboxImg){
+      closeLightbox();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lightbox.classList.contains("is-open")){
+      closeLightbox();
+    }
+  });
+
+  btnChokerWhatsapp.addEventListener("click", (e) => {
+    e.preventDefault();
+    const baseMessage = "Здравствуйте! Хочу заказать чокер из натуральных камней.";
+    const selected = Array.from(document.querySelectorAll('input[name="choker_like"]:checked'))
+      .map((input) => input.value);
+    const extra = selected.length ? ` Мне нравится ${selected.join("; ")}.` : "";
+    const message = `${baseMessage}${extra}`;
+    const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  });
+
+  // (опционально) отправка формы
+  orderForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    toastOk.style.display = "none";
+    toastErr.style.display = "none";
+
+    if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.includes("XXXXXXXX")){
+      toastErr.textContent = "Не настроен endpoint Formspree. Замените FORMSPREE_ENDPOINT в коде.";
+      toastErr.style.display = "block";
+      return;
+    }
+
+    const formData = new FormData(orderForm);
+
+    try{
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        body: formData,
+        headers: { "Accept": "application/json" }
+      });
+
+      if (res.ok){
+        toastOk.style.display = "block";
+        orderForm.reset();
+
+        const recs = lastTopList.length ? lastTopList : [lastTop];
+        selectPendant.innerHTML = "";
+        recs.forEach(k => {
+          const opt = document.createElement("option");
+          opt.value = ARCANA[k].title;
+          opt.textContent = ARCANA[k].title;
+          selectPendant.appendChild(opt);
+        });
+        quizResultField.value = `Top: ${ARCANA[lastTop].title}; Recs: ${recs.map(r=>ARCANA[r].title).join(", ")}`;
+      } else {
+        toastErr.style.display = "block";
+      }
+    } catch(err){
+      toastErr.style.display = "block";
+    }
+  });
+</script>
+</body>
+</html>
